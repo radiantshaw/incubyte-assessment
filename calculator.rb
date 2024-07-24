@@ -16,5 +16,9 @@ RSpec.describe Calculator do
     it "adds numbers separated by comma" do
       expect(calculator.add("1,5")).to eq(6)
     end
+
+    it "handles single number" do
+      expect(calculator.add("1")).to eq(1)
+    end
   end
 end
