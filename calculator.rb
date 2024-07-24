@@ -3,7 +3,7 @@ class Calculator
     string_of_numbers
       .split(",")
       .map(&:to_i)
-      .reduce do |memo, number|
+      .reduce(0) do |memo, number|
         memo + number
       end
   end
@@ -19,6 +19,10 @@ RSpec.describe Calculator do
 
     it "handles single number" do
       expect(calculator.add("1")).to eq(1)
+    end
+
+    it "handles empty string" do
+      expect(calculator.add("")).to eq(0)
     end
   end
 end
