@@ -25,6 +25,8 @@ class Calculator
       .match(/\A(?:\/\/(?<delimiter>.)\n)?(?<numbers>.*)\z/m)
       .then do |match_data|
         converted_numbers(match_data["numbers"], match_data["delimiter"] || ",")
+      end.reject do |number|
+        number > 1000
       end
   end
 
@@ -60,7 +62,7 @@ RSpec.describe Calculator do
     end
 
     it "handles more than 2 numbers" do
-      expect(calculator.add("1,5,3,9,42,1099")).to eq(1159)
+      expect(calculator.add("1,5,3,9,42,109")).to eq(169)
     end
 
     it "handles new lines" do
@@ -78,6 +80,10 @@ RSpec.describe Calculator do
         Calculator::NegativeNumbersNotAllowedError,
         "negative numbers not allowed -6, -42, -14"
       )
+    end
+
+    it "ignores numbers bigger than 1000" do
+      expect(calculator.add("//;\n2;1001")).to eq(2)
     end
   end
 end
