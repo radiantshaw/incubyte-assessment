@@ -24,5 +24,9 @@ RSpec.describe Calculator do
     it "handles empty string" do
       expect(calculator.add("")).to eq(0)
     end
+
+    it "handles more than 2 numbers" do
+      expect(calculator.add("1,5,3,9,42,1099")).to eq(1159)
+    end
   end
 end
