@@ -1,6 +1,7 @@
 class Calculator
   def add(string_of_numbers)
     string_of_numbers
+      .gsub("\n", ",")
       .split(",")
       .map(&:to_i)
       .reduce(0) do |memo, number|
@@ -27,6 +28,10 @@ RSpec.describe Calculator do
 
     it "handles more than 2 numbers" do
       expect(calculator.add("1,5,3,9,42,1099")).to eq(1159)
+    end
+
+    it "handles new lines" do
+      expect(calculator.add("1\n2,3")).to eq(6)
     end
   end
 end
