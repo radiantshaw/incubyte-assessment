@@ -1,4 +1,10 @@
 class Calculator
+  class NegativeNumbersNotAllowedError < StandardError
+    def initialize(numbers)
+      super("negative numbers not allowed #{numbers.join(", ")}")
+    end
+  end
+
   def add(descriptor)
     delimiter, numbers = parsed(descriptor)
 
@@ -6,6 +12,15 @@ class Calculator
       .gsub("\n", ",")
       .split(delimiter)
       .map(&:to_i)
+      .partition do |number|
+        number.negative?
+      end => negative_numbers, positive_numbers
+
+    if negative_numbers.any?
+      raise NegativeNumbersNotAllowedError.new(negative_numbers)
+    end
+
+    positive_numbers
       .reduce(0) do |memo, number|
         memo + number
       end
@@ -48,6 +63,15 @@ RSpec.describe Calculator do
 
     it "works with a custom delimiter" do
       expect(calculator.add("//;\n1;2")).to eq(3)
+    end
+
+    it "throws error when negative numbers are encountered" do
+      expect do
+        calculator.add("//;\n-6;1;2;-42;50;-14")
+      end.to raise_error(
+        Calculator::NegativeNumbersNotAllowedError,
+        "negative numbers not allowed -6, -42, -14"
+      )
     end
   end
 end
