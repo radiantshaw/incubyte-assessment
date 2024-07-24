@@ -6,10 +6,7 @@ class Calculator
   end
 
   def add(descriptor)
-    parsed_numbers(descriptor)
-      .partition do |number|
-        number.negative?
-      end => negative_numbers, positive_numbers
+    negative_numbers, positive_numbers = partitioned_numbers(parsed_numbers(descriptor))
 
     if negative_numbers.any?
       raise NegativeNumbersNotAllowedError.new(negative_numbers)
@@ -36,6 +33,13 @@ class Calculator
       .gsub("\n", ",")
       .split(delimiter)
       .map(&:to_i)
+  end
+
+  def partitioned_numbers(numbers)
+    numbers
+      .partition do |number|
+        number.negative?
+      end
   end
 end
 
