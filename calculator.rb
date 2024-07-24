@@ -6,12 +6,7 @@ class Calculator
   end
 
   def add(descriptor)
-    delimiter, numbers = parsed(descriptor)
-
-    numbers
-      .gsub("\n", ",")
-      .split(delimiter)
-      .map(&:to_i)
+    parsed_numbers(descriptor)
       .partition do |number|
         number.negative?
       end => negative_numbers, positive_numbers
@@ -28,12 +23,19 @@ class Calculator
 
   private
 
-  def parsed(descriptor)
+  def parsed_numbers(descriptor)
     descriptor
       .match(/\A(?:\/\/(?<delimiter>.)\n)?(?<numbers>.*)\z/m)
       .then do |match_data|
-        [match_data["delimiter"] || ",", match_data["numbers"]]
+        converted_numbers(match_data["numbers"], match_data["delimiter"] || ",")
       end
+  end
+
+  def converted_numbers(numbers, delimiter)
+    numbers
+      .gsub("\n", ",")
+      .split(delimiter)
+      .map(&:to_i)
   end
 end
 
