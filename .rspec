@@ -1,2 +1,2 @@
 --require spec_helper
---pattern "{descriptor,calculator}.rb"
+--pattern "{descriptor,calculator,delimited_numbers,delimiter}.rb"

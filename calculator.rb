@@ -1,7 +1,11 @@
-require_relative "descriptor"
-require "debug"
+require_relative "delimiter"
+require_relative "delimited_numbers"
 
 class Calculator
+  OPERATORS = { "*" => :* }
+  OPERATORS.default = :+
+  private_constant :OPERATORS
+
   class NegativeNumbersNotAllowedError < StandardError
     def initialize(numbers)
       super("negative numbers not allowed #{numbers.join(", ")}")
@@ -9,17 +13,24 @@ class Calculator
   end
 
   def add(descriptor)
-    descriptor = Descriptor.new(descriptor)
-    operator = descriptor.operator
-    numbers_array = descriptor.numbers
+    string_scanner = StringScanner.new(descriptor)
+    delimiter = Delimiter.new(string_scanner)
+    numbers = DelimitedNumbers.new(string_scanner.rest, delimiter)
+    operator = OPERATORS[delimiter.to_s]
 
-    negative_numbers, positive_numbers = partitioned_numbers(numbers_array)
+    negative_numbers, positive_numbers = partitioned_numbers(numbers)
     if negative_numbers.any?
       raise NegativeNumbersNotAllowedError.new(negative_numbers)
     end
 
-    if positive_numbers.any?
+    filtered_positive_numbers =
       positive_numbers
+        .reject do |number|
+          number > 1000
+        end
+
+    if filtered_positive_numbers.any?
+      filtered_positive_numbers
         .reduce do |memo, number|
           memo.public_send(operator, number)
         end
