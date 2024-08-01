@@ -1,3 +1,6 @@
+require_relative "descriptor"
+require "debug"
+
 class Calculator
   class NegativeNumbersNotAllowedError < StandardError
     def initialize(numbers)
@@ -6,29 +9,26 @@ class Calculator
   end
 
   def add(descriptor)
-    negative_numbers, positive_numbers = partitioned_numbers(parsed_numbers(descriptor))
+    descriptor = Descriptor.new(descriptor)
+    operator = descriptor.operator
+    numbers_array = descriptor.numbers
 
+    negative_numbers, positive_numbers = partitioned_numbers(numbers_array)
     if negative_numbers.any?
       raise NegativeNumbersNotAllowedError.new(negative_numbers)
     end
 
-    positive_numbers
-      .reduce(0) do |memo, number|
-        memo + number
-      end
+    if positive_numbers.any?
+      positive_numbers
+        .reduce do |memo, number|
+          memo.public_send(operator, number)
+        end
+    else
+      0
+    end
   end
 
   private
-
-  def parsed_numbers(descriptor)
-    descriptor
-      .match(/\A(?:\/\/(?<delimiter>.)\n)?(?<numbers>.*)\z/m)
-      .then do |match_data|
-        converted_numbers(match_data["numbers"], match_data["delimiter"] || ",")
-      end.reject do |number|
-        number > 1000
-      end
-  end
 
   def converted_numbers(numbers, delimiter)
     numbers
@@ -84,6 +84,10 @@ RSpec.describe Calculator do
 
     it "ignores numbers bigger than 1000" do
       expect(calculator.add("//;\n2;1001")).to eq(2)
+    end
+
+    it "multiplies the numbers if delimiter is star" do
+      expect(calculator.add("//*\n1*2*8")).to eq(16)
     end
   end
 end
